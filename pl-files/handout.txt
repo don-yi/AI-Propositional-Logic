@@ -1,0 +1,53 @@
+Implement conversion to CNF and proof using by contradiction using resolution.
+
+The provided code assumes that parsing is done by C++ compiler.  All class
+names except CNF and KnowledgeBase are optional. 
+
+If using brute-force in ProveByRefutation the expected times are:
+0,...,9  - immediate
+10       - 10 sec
+11,12,13 - too long (hours)
+
+If you optimize (either C++ or algorithm) and get much better times, you'll be
+eligible for extra credit.  I used the same brute-force algorithm, but a
+different storage for CNF and was able to get tests 11 and 12 (1.2s and 23s). 
+
+test13 is very difficult - if you solve it under 5mins you will get extra
+credit.
+
+If you implement parsing (i.e. knowledge base is read from a file) you get
+extra credit. Note that you'll need to provide your own main function - submit
+by email.
+
+Converting to CNF on the fly:
+1) clause is an "or" of literals: A | B | ~C
+2) CNF is a collection of clauses
+
+Implement "and" and "or" of CNFs 
+1) "and"
+    CNF1 = clause1 & clause2 & clause3,
+    CNF2 = clause4 & clause5 & clause6,
+    CNF1 & CNF2 = clause1 & clause2 & clause3 & clause4 & clause5 & clause6
+
+2) "or"
+    CNF1 = clause1 & clause2 & clause3,
+    CNF2 = clause4 & clause5 & clause6,
+    CNF1 | CNF2 = 
+                  c1|c4 & c1|c5 & c1|c6    &
+                  c2|c4 & c2|c5 & c2|c6    &
+                  c3|c4 & c3|c5 & c3|c6
+
+3) implement negation
+    a) if CNF is made of a single clause: A | B | ~C,
+    negating it gives ~A & ~B & C (3 clauses)
+    b) otherwise
+    CNF = clause1 & clause2 & clause3,
+    ~CNF = ~clause1 | ~clause2 | ~clause3 
+    "or" is already implemented and "~" is on a single clause, so 3a) takes care of it
+
+4) Implication:
+    convert using 
+    A=>B
+    is equivalent to
+    ~A|B
+    "not" and "or" are already implemented.
