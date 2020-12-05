@@ -8,16 +8,6 @@ If using brute-force in ProveByRefutation the expected times are:
 10       - 10 sec
 11,12,13 - too long (hours)
 
-If you optimize (either C++ or algorithm) and get much better times, you'll be
-eligible for extra credit.  I used the same brute-force algorithm, but a
-different storage for CNF and was able to get tests 11 and 12 (1.2s and 23s). 
-
-test13 is very difficult - if you solve it under 5mins you will get extra
-credit.
-
-If you implement parsing (i.e. knowledge base is read from a file) you get
-extra credit. Note that you'll need to provide your own main function - submit
-by email.
 
 Converting to CNF on the fly:
 1) clause is an "or" of literals: A | B | ~C
