@@ -14,7 +14,7 @@ public:
   Literal(std::string const& _name) : name(_name), negated(false) { }
   Literal() : name(""), negated(false) { } // just for map.operator[]
   ////////////////////////////////////////////////////////////////////////
-  Literal& Negate() { negated = !negated; }
+  Literal& Negate() { /* TODO */ return *this; negated = !negated; }
   bool IsPositive() const { return !negated; }
   ////////////////////////////////////////////////////////////////////////
   bool operator==(Literal const& op2) const {
@@ -68,6 +68,11 @@ public:
   // ..........
   // ..........
   ////////////////////////////////////////////////////////////////////////
+  bool operator<(Clause const& clause) const {
+    // TODO
+    return false; // placeholer
+  }
+  ////////////////////////////////////////////////////////////////////////
   friend std::ostream& operator<<(std::ostream& os, Clause const& clause) {
     unsigned size = clause.literals.size();
 
@@ -93,9 +98,9 @@ private:
 
 class CNF {
 public:
-  CNF()
-  ////////////////////////////////////////////////////////////////////////
-  CNF(Literal const& op2) {
+  // TODO
+  CNF() : clauses({}), literals({}) { }
+  CNF(Literal const& literal) {
     // TODO
 
   }
@@ -106,12 +111,14 @@ public:
   ////////////////////////////////////////////////////////////////////////
   // not
   CNF const operator~() const {
+    // TODO
     //if CNF is made of a single clause: A | B | ~C,
     //negating it gives ~A & ~B & C (3 clauses)
     //otherwise
     //CNF = clause1 & clause2 & clause3,
     //~CNF = ~clause1 | ~clause2 | ~clause3 
     //"or" is defined later 
+    return {};
   }
   ////////////////////////////////////////////////////////////////////////
   // =>
@@ -122,19 +129,23 @@ public:
   ////////////////////////////////////////////////////////////////////////
   // and
   CNF const operator&(CNF const& op2) const {
+    // TODO
     //CNF1 = clause1 & clause2 & clause3,
     //CNF2 = clause4 & clause5 & clause6,
     //CNF1 & CNF2 = clause1 & clause2 & clause3 & clause4 & clause5 & clause6
+    return {};
   }
   ///////////////////////////////////////////////////////////////////////
   // or
   CNF const operator|(CNF const& op2) const {
+    // TODO
     //CNF1 = clause1 & clause2 & clause3,
     //CNF2 = clause4 & clause5 & clause6,
     //CNF1 | CNF2 = 
     //              c1|c4 & c1|c5 & c1|c6    &
     //              c2|c4 & c2|c5 & c2|c6    &
     //              c3|c4 & c3|c5 & c3|c6
+    return {};
   }
 
   /////////////////////////////////////////////////////////////////////////////////

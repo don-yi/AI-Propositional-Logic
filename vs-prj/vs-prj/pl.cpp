@@ -22,6 +22,8 @@ std::set< Clause >::const_iterator KnowledgeBase::end()   const { return clauses
 unsigned                           KnowledgeBase::size()  const { return clauses.size(); }
 ////////////////////////////////////////////////////////////////////////////
 bool KnowledgeBase::ProveByRefutation(CNF const& alpha) const {
+  // TODO
+  return false;
 }
 ////////////////////////////////////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& os, KnowledgeBase const& kb) {
