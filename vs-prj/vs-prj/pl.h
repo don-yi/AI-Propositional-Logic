@@ -14,7 +14,10 @@ public:
   Literal(std::string const& _name) : name(_name), negated(false) { }
   Literal() : name(""), negated(false) { } // just for map.operator[]
   ////////////////////////////////////////////////////////////////////////
-  Literal& Negate() { /* TODO */ return *this; negated = !negated; }
+  Literal& Negate() {
+    negated = not negated;
+    return *this;
+  }
   bool IsPositive() const { return !negated; }
   ////////////////////////////////////////////////////////////////////////
   bool operator==(Literal const& op2) const {
@@ -56,20 +59,37 @@ private:
   std::string name;
   bool negated;
   unsigned lSize;
+
 };
 
 class Clause {
 public:
+  Clause(Literal& literal) { literals.insert(literal); }
+  ////////////////////////////////////////////////////////////////////////
   unsigned size() const {
     return cSize;
   }
+  ////////////////////////////////////////////////////////////////////////
+  void Insert(Literal const& literal) {
+    literals.insert(literal);
+    ++cSize;
+  }
+  ////////////////////////////////////////////////////////////////////////
+  void Negate() {
+    for (auto literal : literals) {
+      Literal placeholder = literal.Negate();
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////
+  std::set<Literal>& Literals() { return literals; }
+  ////////////////////////////////////////////////////////////////////////
   // ..........
   // ..........
   // ..........
   // ..........
   ////////////////////////////////////////////////////////////////////////
+  // TODO: rm this fn
   bool operator<(Clause const& clause) const {
-    // TODO
     return false; // placeholer
   }
   ////////////////////////////////////////////////////////////////////////
@@ -91,7 +111,7 @@ public:
     return os;
   }
 private:
-  std::set< Literal > literals;
+  std::set<Literal> literals;
   unsigned cSize = 0;
 
 };
@@ -99,11 +119,13 @@ private:
 class CNF {
 public:
   // TODO
-  CNF() : clauses({}), literals({}) { }
+  CNF() : clauses() { }
   CNF(Literal const& literal) {
-    // TODO
-
+    Clause clause;
+    clause.Insert(literal);
+    clauses.insert(clause);
   }
+  ////////////////////////////////////////////////////////////////////////
   // ..........
   // ..........
   // ..........
@@ -111,13 +133,24 @@ public:
   ////////////////////////////////////////////////////////////////////////
   // not
   CNF const operator~() const {
-    // TODO
+    // TODO 1st
+
     //if CNF is made of a single clause: A | B | ~C,
-    //negating it gives ~A & ~B & C (3 clauses)
+    if (size() == 1) {
+      //negating it gives ~A & ~B & C (3 clauses)
+      Clause clause = *begin();
+      for (auto&& literal : clause.Literals())
+      {
+        Clause newClause(literal);
+        res.clauses.insert(clause);
+      }
+
     //otherwise
-    //CNF = clause1 & clause2 & clause3,
-    //~CNF = ~clause1 | ~clause2 | ~clause3 
-    //"or" is defined later 
+    } else {
+      //CNF = clause1 & clause2 & clause3,
+      //~CNF = ~clause1 | ~clause2 | ~clause3 
+      //"or" is defined later 
+    }
     return {};
   }
   ////////////////////////////////////////////////////////////////////////
@@ -154,7 +187,7 @@ public:
   CNF const operator|(Literal const& op2) const { return operator|(CNF(op2)); }
 
   ////////////////////////////////////////////////////////////////////////
-  bool Empty() const { return literals.size() == 0; }
+  bool Empty() const { return clauses.size() == 0; }
   ////////////////////////////////////////////////////////////////////////
   std::set< Clause >::const_iterator begin() const { return clauses.begin(); }
   std::set< Clause >::const_iterator end()   const { return clauses.end(); }
@@ -167,9 +200,10 @@ public:
     }
     return os;
   }
+
 private:
-  std::set< Clause > clauses;
-  std::set< Clause > literals;
+  std::set<Clause> clauses;
+
 };
 
 CNF const operator|(Literal const& op1, Literal const& op2);

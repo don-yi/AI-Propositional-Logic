@@ -571,23 +571,23 @@ void (*pTests[])(void) = {
 #include <cstdio> /* sscanf */
 int main(int argc, char *argv[] ) {
     std::srand ( time (NULL) ) ;
-    if (argc >1) {
+    //if (argc > 1) {
         int test = 0;
-        std::sscanf(argv[1],"%i",&test);
+        //std::sscanf(argv[1],"%i",&test);
         try {
             pTests[test]();
         } catch( const char* msg) {
             std::cerr << msg << std::endl;
         }
-    } else {
-        //notes
-        var(P); var(Q); var(S);
-        CNF cnf = ~( (P>Q) > S  );
-        std::cout << cnf << std::endl;
-        // software ( ~P | ~S ) , ( ~P | Q ) , ( ~S ) , ( ~S | Q ) 
-        // human    ( ~P | Q ) , ( ~S )
-        // explanation - if all literals of S1 are in S2, S2 is strictly weaker and may be omitted
-    }
+    //} else {
+    //    //notes
+    //    var(P); var(Q); var(S);
+    //    CNF cnf = ~( (P>Q) > S  );
+    //    std::cout << cnf << std::endl;
+    //    // software ( ~P | ~S ) , ( ~P | Q ) , ( ~S ) , ( ~S | Q ) 
+    //    // human    ( ~P | Q ) , ( ~S )
+    //    // explanation - if all literals of S1 are in S2, S2 is strictly weaker and may be omitted
+    //}
 
 
     return 0;
