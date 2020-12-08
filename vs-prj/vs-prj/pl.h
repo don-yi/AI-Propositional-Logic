@@ -64,11 +64,13 @@ private:
 
 class Clause {
 public:
-  Clause(Literal& literal) { literals.insert(literal); }
-  ////////////////////////////////////////////////////////////////////////
-  unsigned size() const {
-    return cSize;
+  Clause() : literals({}), cSize(0) {}
+  Clause(Literal const& literal) : cSize(0) {
+    literals.insert(literal);
+    ++cSize;
   }
+  ////////////////////////////////////////////////////////////////////////
+  unsigned size() const { return cSize; }
   ////////////////////////////////////////////////////////////////////////
   void Insert(Literal const& literal) {
     literals.insert(literal);
@@ -81,7 +83,7 @@ public:
     }
   }
   ////////////////////////////////////////////////////////////////////////
-  std::set<Literal>& Literals() { return literals; }
+  std::set<Literal> Literals() const { return literals; }
   ////////////////////////////////////////////////////////////////////////
   // ..........
   // ..........
@@ -112,7 +114,7 @@ public:
   }
 private:
   std::set<Literal> literals;
-  unsigned cSize = 0;
+  unsigned cSize;
 
 };
 
@@ -121,8 +123,7 @@ public:
   // TODO
   CNF() : clauses() { }
   CNF(Literal const& literal) {
-    Clause clause;
-    clause.Insert(literal);
+    Clause clause(literal);
     clauses.insert(clause);
   }
   ////////////////////////////////////////////////////////////////////////
@@ -133,7 +134,7 @@ public:
   ////////////////////////////////////////////////////////////////////////
   // not
   CNF const operator~() const {
-    // TODO 1st
+    CNF res;
 
     //if CNF is made of a single clause: A | B | ~C,
     if (size() == 1) {
@@ -141,8 +142,8 @@ public:
       Clause clause = *begin();
       for (auto&& literal : clause.Literals())
       {
-        Clause newClause(literal);
-        res.clauses.insert(clause);
+        Clause newClause(~literal);
+        res.clauses.insert(newClause);
       }
 
     //otherwise
@@ -151,7 +152,7 @@ public:
       //~CNF = ~clause1 | ~clause2 | ~clause3 
       //"or" is defined later 
     }
-    return {};
+    return res;
   }
   ////////////////////////////////////////////////////////////////////////
   // =>
@@ -171,14 +172,25 @@ public:
   ///////////////////////////////////////////////////////////////////////
   // or
   CNF const operator|(CNF const& op2) const {
-    // TODO
+    CNF res;
+
     //CNF1 = clause1 & clause2 & clause3,
     //CNF2 = clause4 & clause5 & clause6,
     //CNF1 | CNF2 = 
     //              c1|c4 & c1|c5 & c1|c6    &
     //              c2|c4 & c2|c5 & c2|c6    &
     //              c3|c4 & c3|c5 & c3|c6
-    return {};
+    for (std::set<Clause>::const_iterator i = begin(); i != end(); ++i) {
+      for (
+        std::set<Clause>::const_iterator j = op2.begin(); j != op2.end(); ++j) {
+        Clause clause;
+        for (Literal literal : i->Literals()) clause.Insert(literal);
+        for (Literal literal : j->Literals()) clause.Insert(literal);
+        res.clauses.insert(clause);
+      }
+    }
+
+    return res;
   }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -189,8 +201,8 @@ public:
   ////////////////////////////////////////////////////////////////////////
   bool Empty() const { return clauses.size() == 0; }
   ////////////////////////////////////////////////////////////////////////
-  std::set< Clause >::const_iterator begin() const { return clauses.begin(); }
-  std::set< Clause >::const_iterator end()   const { return clauses.end(); }
+  std::set<Clause>::const_iterator begin() const { return clauses.begin(); }
+  std::set<Clause>::const_iterator end()   const { return clauses.end(); }
   unsigned                           size()  const { return clauses.size(); }
   ////////////////////////////////////////////////////////////////////////
   friend std::ostream& operator<<(std::ostream& os, CNF const& cnf) {
