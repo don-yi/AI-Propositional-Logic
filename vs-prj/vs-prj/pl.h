@@ -51,31 +51,21 @@ public:
     os << (literal.negated ? "~" : "") << literal.name;
     return os;
   }
-  ////////////////////////////////////////////////////////////////////////
-  unsigned size() const {
-    return lSize;
-  }
+
 private:
   std::string name;
   bool negated;
-  unsigned lSize;
 
 };
 
 class Clause {
 public:
-  Clause() : literals({}), cSize(0) {}
-  Clause(Literal const& literal) : cSize(0) {
-    literals.insert(literal);
-    ++cSize;
-  }
+  Clause() : literals({}) {}
+  Clause(Literal const& literal) { literals.insert(literal); }
   ////////////////////////////////////////////////////////////////////////
-  unsigned size() const { return cSize; }
+  unsigned size() const { return literals.size(); }
   ////////////////////////////////////////////////////////////////////////
-  void Insert(Literal const& literal) {
-    literals.insert(literal);
-    ++cSize;
-  }
+  void Insert(Literal const& literal) { literals.insert(literal); }
   ////////////////////////////////////////////////////////////////////////
   void Negate() {
     for (auto literal : literals) {
@@ -90,9 +80,8 @@ public:
   // ..........
   // ..........
   ////////////////////////////////////////////////////////////////////////
-  // TODO: rm this fn
   bool operator<(Clause const& clause) const {
-    return false; // placeholer
+    return literals < clause.literals;
   }
   ////////////////////////////////////////////////////////////////////////
   friend std::ostream& operator<<(std::ostream& os, Clause const& clause) {
@@ -114,7 +103,6 @@ public:
   }
 private:
   std::set<Literal> literals;
-  unsigned cSize;
 
 };
 
@@ -123,7 +111,7 @@ public:
   // TODO
   CNF() : clauses() { }
   CNF(Literal const& literal) {
-    Clause clause(literal);
+    Clause const clause(literal);
     clauses.insert(clause);
   }
   ////////////////////////////////////////////////////////////////////////
