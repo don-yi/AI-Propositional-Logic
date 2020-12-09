@@ -75,13 +75,16 @@ public:
   ////////////////////////////////////////////////////////////////////////
   std::set<Literal> Literals() const { return literals; }
   ////////////////////////////////////////////////////////////////////////
-  // ..........
-  // ..........
-  // ..........
-  // ..........
-  ////////////////////////////////////////////////////////////////////////
   bool operator<(Clause const& clause) const {
     return literals < clause.literals;
+  }
+  ////////////////////////////////////////////////////////////////////////
+  bool operator==(Clause const& op2) const {
+    for (auto && l1 : literals)
+      for (auto && l2 : op2.Literals())
+        if (not (l1 == l2)) return false;
+
+    return true;
   }
   ////////////////////////////////////////////////////////////////////////
   friend std::ostream& operator<<(std::ostream& os, Clause const& clause) {
@@ -114,11 +117,7 @@ public:
     Clause const clause(literal);
     clauses.insert(clause);
   }
-  ////////////////////////////////////////////////////////////////////////
-  // ..........
-  // ..........
-  // ..........
-  // ..........
+  CNF(std::set<Clause> const& clauses) : clauses(clauses) { }
   ////////////////////////////////////////////////////////////////////////
   // not
   CNF const operator~() const {
@@ -136,6 +135,7 @@ public:
 
     //otherwise
     } else {
+      // todo
       //CNF = clause1 & clause2 & clause3,
       //~CNF = ~clause1 | ~clause2 | ~clause3 
       //"or" is defined later 
@@ -186,12 +186,24 @@ public:
   CNF const operator&(Literal const& op2) const { return operator&(CNF(op2)); }
   CNF const operator|(Literal const& op2) const { return operator|(CNF(op2)); }
 
+  ////////////////////////////////////////////////////////////////////////////
+  CNF& operator+=(CNF const& cnf) {
+    for (std::set< Clause >::const_iterator it = cnf.begin();
+      it != cnf.end();
+      ++it)
+      clauses.insert(*it);
+
+    return *this;
+  }
+
+  ////////////////////////////////////////////////////////////////////////
+  std::set<Clause> Clauses() const { return clauses; }
   ////////////////////////////////////////////////////////////////////////
   bool Empty() const { return clauses.size() == 0; }
   ////////////////////////////////////////////////////////////////////////
   std::set<Clause>::const_iterator begin() const { return clauses.begin(); }
   std::set<Clause>::const_iterator end()   const { return clauses.end(); }
-  unsigned                           size()  const { return clauses.size(); }
+  unsigned                         size()  const { return clauses.size(); }
   ////////////////////////////////////////////////////////////////////////
   friend std::ostream& operator<<(std::ostream& os, CNF const& cnf) {
     unsigned size = cnf.clauses.size();
@@ -227,11 +239,14 @@ public:
   std::set< Clause >::const_iterator end()   const;
   unsigned                           size()  const;
   ////////////////////////////////////////////////////////////////////////////
-  bool ProveByRefutation(CNF const& alpha) const;
+  bool ProveByRefutation(CNF const& alpha);
   ////////////////////////////////////////////////////////////////////////////
   friend std::ostream& operator<<(std::ostream& os, KnowledgeBase const& kb);
 private:
-  std::set< Clause > clauses;
+  std::set<Clause> clauses;
+  std::set<Clause> Resolve(Clause const& c1, Clause const& c2);
+  void ResolveClause(
+    Clause& resolved, Clause const& clause, Literal const& complementary);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
