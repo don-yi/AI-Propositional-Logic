@@ -170,6 +170,12 @@ public:
   CNF const operator|(CNF const& op2) const {
     CNF res;
 
+    // edge case handling (empty cnf)
+    if (size() == 0)
+      return op2;
+    else if (op2.size() == 0)
+      return *this;
+
     //CNF1 = clause1 & clause2 & clause3,
     //CNF2 = clause4 & clause5 & clause6,
     //CNF1 | CNF2 = 
@@ -205,7 +211,7 @@ public:
   }
 
   ////////////////////////////////////////////////////////////////////////
-  std::set<Clause> Clauses() const { return clauses; }
+  std::set<Clause>& Clauses() { return clauses; }
   ////////////////////////////////////////////////////////////////////////
   bool Empty() const { return clauses.size() == 0; }
   ////////////////////////////////////////////////////////////////////////

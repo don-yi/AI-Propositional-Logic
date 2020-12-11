@@ -35,28 +35,48 @@ bool KnowledgeBase::ProveByRefutation(CNF const& alpha) {
   {
   //      for each Ci, Cj in clauses do
     for (std::set<Clause>::const_iterator i = cnf.begin();
-      i != std::next(cnf.end(), - 1);
-      ++i)
+      i != std::next(cnf.end(), -1);
+      ++i) {
       for (std::set<Clause>::const_iterator j = std::next(i);
         j != cnf.end();
         ++j) {
-  //          resolvents <----- PL-RESOLVE(Ci, Cj)
+        //          resolvents <----- PL-RESOLVE(Ci, Cj)
         std::set<Clause> resolvents = Resolve(*i, *j);
+
+        ////          if resolvents contains the empty clause then return true
+        //for (auto&& resolvent : resolvents)
+        //  if (not resolvent.size()) return true;
+
         //          if resolvents contains the empty clause then return true
-        for (auto&& resolvent : resolvents)
-          if (not resolvent.size()) return true;
+        Clause empty;
+        std::set<Clause>::const_iterator findItr = resolvents.find(empty);
+        if (findItr != resolvents.end())
+        {
+          return true;
+        }
 
         //          new <--- new ∪ resolvents
         CNF resC(resolvents);
         newC += resC;
+      }
     }
 
     //      if new ⊆ clauses then return false
-    for (auto&& new_c : newC)
-      for (auto&& clause : cnf.Clauses())
-        if (new_c == clause) return false;
+    bool isSubset = false;
+    for (auto&& newc : newC) {
+      std::set<Clause>::const_iterator findItr = cnf.Clauses().find(newc);
+      if (findItr == cnf.end()) {
+        isSubset = false;
+        break;
+      }
+
+      isSubset = true;
+    }
+    if (isSubset) return false;
+
     //      clauses <---- clauses  ∪ new
     cnf += newC;
+
   } while (true);
 }
 
