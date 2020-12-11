@@ -144,7 +144,7 @@ public:
       //~CNF = ~clause1 | ~clause2 | ~clause3 
       for (auto && clause : clauses) {
         CNF const negC(~clause);
-        (res.size() == 0) ? res += negC : res += res | negC;
+        (res.size() == 0) ? res += negC : res | negC;
       }
     }
 
