@@ -75,6 +75,12 @@ public:
   ////////////////////////////////////////////////////////////////////////
   std::set<Literal> Literals() const { return literals; }
   ////////////////////////////////////////////////////////////////////////
+  std::set<Clause> operator~() const {
+    std::set<Clause> res;
+    for (auto && literal : literals) res.insert(~literal);
+    return res;
+  }
+  ////////////////////////////////////////////////////////////////////////
   bool operator<(Clause const& clause) const {
     return literals < clause.literals;
   }
@@ -111,7 +117,6 @@ private:
 
 class CNF {
 public:
-  // TODO
   CNF() : clauses() { }
   CNF(Literal const& literal) {
     Clause const clause(literal);
@@ -135,11 +140,14 @@ public:
 
     //otherwise
     } else {
-      // todo
       //CNF = clause1 & clause2 & clause3,
       //~CNF = ~clause1 | ~clause2 | ~clause3 
-      //"or" is defined later 
+      for (auto && clause : clauses) {
+        CNF const negC(~clause);
+        (res.size() == 0) ? res += negC : res += res | negC;
+      }
     }
+
     return res;
   }
   ////////////////////////////////////////////////////////////////////////
@@ -151,11 +159,11 @@ public:
   ////////////////////////////////////////////////////////////////////////
   // and
   CNF const operator&(CNF const& op2) const {
-    // TODO
     //CNF1 = clause1 & clause2 & clause3,
     //CNF2 = clause4 & clause5 & clause6,
     //CNF1 & CNF2 = clause1 & clause2 & clause3 & clause4 & clause5 & clause6
-    return {};
+    CNF res; res += *this; res += op2;
+    return res;
   }
   ///////////////////////////////////////////////////////////////////////
   // or
