@@ -25,6 +25,8 @@ bool KnowledgeBase::ProveByRefutation(CNF const& alpha) {
   std::set<Clause> const kb = clauses;
   CNF cnf(kb);
   cnf += ~alpha;
+  if (cnf.size() == 1) return false;
+
   //   new <--- {}
   CNF newC;
 
