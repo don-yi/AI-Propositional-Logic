@@ -86,9 +86,13 @@ public:
   }
   ////////////////////////////////////////////////////////////////////////
   bool operator==(Clause const& op2) const {
-    for (auto && l1 : literals)
-      for (auto && l2 : op2.Literals())
-        if (not (l1 == l2)) return false;
+    if (size() != op2.size()) return false;
+
+    for (auto && literal : literals) {
+      std::set<Literal>::const_iterator findItr = op2.Literals().find(literal);
+      std::set<Literal>::const_iterator endItr = op2.Literals().end();
+      if (findItr == endItr) return false;
+    }
 
     return true;
   }
@@ -258,6 +262,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, KnowledgeBase const& kb);
 private:
   std::set<Clause> clauses;
+  CNF ResolveSet(CNF& s1, CNF& s2);
   std::set<Clause> Resolve(Clause const& c1, Clause const& c2);
   void ResolveClause(
     Clause& resolved, Clause const& clause, Literal const& complementary);
