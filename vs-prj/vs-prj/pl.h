@@ -262,7 +262,7 @@ public:
   friend std::ostream& operator<<(std::ostream& os, KnowledgeBase const& kb);
 private:
   std::set<Clause> clauses;
-  CNF ResolveSet(CNF& s1, CNF& s2);
+  CNF ResolveSet(CNF& s1, CNF& s2, bool& hasEmptyClause);
   std::set<Clause> Resolve(Clause const& c1, Clause const& c2);
   void ResolveClause(
     Clause& resolved, Clause const& clause, Literal const& complementary);

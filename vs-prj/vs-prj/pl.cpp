@@ -27,44 +27,25 @@ bool KnowledgeBase::ProveByRefutation(CNF const& alpha) {
   cnf += ~alpha;
   if (cnf.size() == 1) return false;
 
-  //   new <--- {}
-  CNF newC;
+  CNF prev = cnf, curr = cnf;
 
   //   loop do
   do
   {
-  //      for each Ci, Cj in clauses do
-    for (std::set<Clause>::const_iterator i = cnf.begin();
-      i != std::next(cnf.end(), -1);
-      ++i) {
-      for (std::set<Clause>::const_iterator j = std::next(i);
-        j != cnf.end();
-        ++j) {
-        //          resolvents <----- PL-RESOLVE(Ci, Cj)
-        std::set<Clause> resolvents = Resolve(*i, *j);
+    bool hasEmptyClause = false;
 
-        ////          if resolvents contains the empty clause then return true
-        //for (auto&& resolvent : resolvents)
-        //  if (not resolvent.size()) return true;
+    CNF next = ResolveSet(prev, curr, hasEmptyClause);
+    if (hasEmptyClause) return true;
+    next += ResolveSet(curr, curr, hasEmptyClause);
+    if (hasEmptyClause) return true;
 
-        //          if resolvents contains the empty clause then return true
-        Clause empty;
-        std::set<Clause>::const_iterator findItr = resolvents.find(empty);
-        if (findItr != resolvents.end())
-        {
-          return true;
-        }
+    prev = prev & curr;
+    curr = next;
 
-        //          new <--- new ∪ resolvents
-        CNF resC(resolvents);
-        newC += resC;
-      }
-    }
-
-    //      if new ⊆ clauses then return false
+    // if new ⊆ clauses then return false
     bool isSubset = false;
-    for (auto&& newc : newC) {
-      std::set<Clause>::const_iterator findItr = cnf.Clauses().find(newc);
+    for (auto&& clause : next) {
+      std::set<Clause>::const_iterator findItr = cnf.Clauses().find(clause);
       if (findItr == cnf.end()) {
         isSubset = false;
         break;
@@ -74,14 +55,37 @@ bool KnowledgeBase::ProveByRefutation(CNF const& alpha) {
     }
     if (isSubset) return false;
 
-    //      clauses <---- clauses  ∪ new
-    cnf += newC;
+    cnf += next;
 
   } while (true);
 }
 
-std::set<Clause> KnowledgeBase::Resolve(
-  Clause const& c1, Clause const& c2) {
+CNF KnowledgeBase::ResolveSet(CNF& s1, CNF& s2, bool& hasEmptyClause) {
+
+  CNF res;
+  // for each Ci, Cj in clauses do
+  for (auto && c1 : s1.Clauses()) {
+    for (auto && c2 : s2.Clauses()) {
+      // resolvents <----- PL-RESOLVE(Ci, Cj)
+      std::set<Clause> resolvents = Resolve(c1, c2);
+
+      // if resolvents contains the empty clause then return true
+      Clause empty;
+      std::set<Clause>::const_iterator findItr = resolvents.find(empty);
+      if (findItr != resolvents.end()) {
+        hasEmptyClause = true;
+        return res;
+      }
+
+      CNF resolventCNF(resolvents);
+      res += resolventCNF;
+    }
+  }
+
+  return res;
+}
+
+std::set<Clause> KnowledgeBase::Resolve(Clause const& c1, Clause const& c2) {
 
   std::set<Clause> res; // resulting clause set
 
